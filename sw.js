@@ -1,7 +1,7 @@
 /* 脑屎 · 离线缓存
    程序文件存进手机，之后不联网也能打开。你的数据不在这里（数据只在本机存储里，从不上传）。
    改版本号 = 通知手机有新版本。 */
-const VERSION = "mymemory-v0.5.0";
+const VERSION = "mymemory-v0.6.0";
 const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {

@@ -318,6 +318,33 @@ html,body{overscroll-behavior:none}
 .node.droptarget .ico{transform:scale(1.18);box-shadow:0 0 0 10px color-mix(in srgb,var(--c) 40%,transparent)}
 .pfb{display:flex;gap:6px;align-items:center}
 #toasts{bottom:78px}
+/* 锁屏 */
+#lock{position:fixed;inset:0;z-index:90;display:none;place-items:center;padding:20px;
+  background:radial-gradient(900px 600px at 30% 10%,rgba(124,108,255,.28),transparent 60%),radial-gradient(800px 600px at 80% 90%,rgba(34,211,238,.18),transparent 60%),rgba(8,9,18,.9);
+  backdrop-filter:blur(26px) saturate(1.2);-webkit-backdrop-filter:blur(26px) saturate(1.2)}
+#lock.open{display:grid}
+body.is-locked #barL,body.is-locked #barR,body.is-locked #dock,body.is-locked #zoom,body.is-locked #tips{visibility:hidden}
+.lk-card{width:min(380px,100%);text-align:center;padding:30px 26px 18px;border-radius:28px;background:rgba(20,23,42,.75);border:1px solid var(--line2);
+  box-shadow:0 30px 80px -30px rgba(124,108,255,.6);animation:pop .55s cubic-bezier(.34,1.56,.64,1) both}
+.lk-card.bye{animation:lkbye .38s ease-in forwards}
+@keyframes lkbye{to{transform:scale(1.08);opacity:0;filter:blur(6px)}}
+.lk-card.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.lk-logo{width:92px;height:92px;margin:0 auto 14px;border-radius:28px;background:url(icons/icon-192.png) center/cover;box-shadow:0 18px 50px -12px #7c6cff;animation:think 3.5s ease-in-out infinite}
+.lk-card h2{margin:0 0 6px;font-size:24px}
+.lk-sub{margin:0 0 18px;color:var(--muted);font-size:13.5px;line-height:1.6}
+.lk-in{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.06);border:1px solid var(--line2);border-radius:14px;padding:0 6px 0 14px;margin-bottom:10px;transition:border-color .2s}
+.lk-in:focus-within{border-color:var(--accent)}
+.lk-in input{flex:1;min-width:0;height:48px;background:none;border:0;outline:0;color:var(--text);font-size:16px;font-family:inherit;letter-spacing:.5px}
+.lk-meter{margin:-4px 4px 12px}
+.lk-go{width:100%;height:48px;font-size:15px;border-radius:14px;margin-top:4px}
+.lk-go:disabled{opacity:.6}
+.lk-err{min-height:18px;margin:10px 0 0;color:var(--red);font-size:13px}
+.lk-hint{font-size:12.5px;color:var(--amber);margin:-2px 0 12px}
+.lk-warn{font-size:12px;color:var(--muted);text-align:left;line-height:1.6;margin:4px 2px 12px;padding:10px 12px;border-radius:12px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2)}
+.lk-link{background:none;border:0;color:var(--muted);font-size:12.5px;margin-top:2px;text-decoration:underline;text-underline-offset:3px}
+.lk-foot{display:flex;gap:6px;align-items:center;justify-content:center;font-size:11px;color:#5d6390;margin:16px 0 0}
+.lk-foot svg{width:13px;height:13px}
 body.linked #toasts{bottom:178px}
 /* 连接条 */
 #linkbar{position:fixed;left:50%;bottom:74px;transform:translate(-50%,20px);width:max-content;max-width:calc(100% - 20px);display:flex;flex-direction:column;gap:8px;padding:10px 12px;border-radius:16px;z-index:24;opacity:0;pointer-events:none;transition:.3s cubic-bezier(.34,1.4,.64,1)}
@@ -430,6 +457,7 @@ body.linked #toasts{bottom:178px}
   <button class="tb" id="bSearch" title="搜索"><svg class="i" data-i="search"></svg><span class="lbl">搜索</span><kbd>Ctrl K</kbd></button>
 </div>
 <div id="barR" class="bar glass">
+  <button class="tb" id="bLock" title="立即锁定"><svg class="i" data-i="lock"></svg></button>
   <button class="status" id="status"><i class="dot" id="sdot"></i><span id="stext">仅保存在本浏览器</span></button>
   <button class="tb" id="bData"><svg class="i" data-i="db"></svg><span class="lbl">数据</span></button>
 </div>
@@ -444,6 +472,10 @@ body.linked #toasts{bottom:178px}
   <button class="mi" data-m="import"><span class="em">🔀</span><div><b>导入并合并</b><small>把对方的同步包合进来，两边都改过的同一条会让你挑</small></div></button>
   <button class="mi" data-m="restore" data-only="mobile"><span class="em">♻️</span><div><b>从备份恢复</b><small>用备份文件「整个替换」本机数据（换手机、重装后用）</small></div></button>
   <div class="msep"></div>
+  <div class="msep"></div>
+  <button class="mi" data-m="lock"><span class="em">🔒</span><div><b>立即锁定</b><small>离开一下？锁上再走</small></div></button>
+  <button class="mi" data-m="chpw"><span class="em">🔑</span><div><b>修改登录密码</b><small>改完会用新密码重新加密</small></div></button>
+  <button class="mi" data-m="autolock"><span class="em">⏱</span><div><b>自动锁定</b><small id="alLabel">5 分钟不操作自动锁上</small></div></button>
   <button class="mi" data-m="clear"><span class="em">🧹</span><div><b>清空示例数据</b><small>开始放你自己的内容</small></div></button>
 </div>
 
@@ -478,6 +510,7 @@ body.linked #toasts{bottom:178px}
 <div id="modal" class="modal"><div class="card glass" id="mcard"></div></div>
 <div id="banner" class="glass"></div>
 <div id="toasts"></div>
+<div id="lock"></div>
 <div id="tips" class="glass">
   <button class="x" id="tipsX"><svg class="i" data-i="x"></svg></button>
   <b>上手 4 招</b><br>
@@ -586,6 +619,7 @@ function blankData(){
   return {nodes:[{id:uid(),type:"hub",title:"我的大脑",x:0,y:0,icon:{kind:"emoji",value:"🧠"},color:"#a78bfa",fields:[],note:"",updatedAt:now()}],edges:[],logos:[],groups:[],demo:false};
 }
 function unpack(o){
+  if(o&&o.encrypted===true) throw new Error("sealed");
   const d=o&&o.format==="mymemory"?o.data:o;
   if(!d||!Array.isArray(d.nodes)) throw new Error("bad");
   return sanitize(d);
@@ -1103,7 +1137,7 @@ async function qrSend(){
   let withLogos=logosKB<400, frames=[], i=0;
   const build=async()=>{
     const data=withLogos?S:{...S,logos:[]};
-    const {z,b}=await gz(JSON.stringify({format:"mymemory",ver:1,savedAt:new Date().toISOString(),encrypted:false,data}));
+    const {z,b}=await gz(JSON.stringify(await packOut(data)));
     const sid=uid().slice(-4), CH=TOUCH?380:620, n=Math.max(1,Math.ceil(b.length/CH));
     frames=[];for(let k=0;k<n;k++)frames.push(`MM1|${sid}|${k}|${n}|${z}|${b.slice(k*CH,(k+1)*CH)}`);
     i=0; const t=$("#qinfo"); if(t) t.innerHTML=`共 <b>${n}</b> 张码，循环播放 · 一轮约 ${Math.max(1,Math.ceil(n/5))} 秒`;
@@ -1839,6 +1873,7 @@ if(IS_APP){ try{const A=Capacitor.Plugins.App; A&&A.addListener("backButton",()=
 /* ================= 键盘 ================= */
 let lastNudge=0;
 document.addEventListener("keydown",e=>{
+  if(locked) return;
   const typing=/INPUT|TEXTAREA/.test(document.activeElement.tagName), mod=e.ctrlKey||e.metaKey, k=e.key.toLowerCase();
   if(mod&&k==="k"){e.preventDefault();openSearch();return}
   if(e.key==="Escape"){goBack();return}
@@ -1878,7 +1913,8 @@ window.addEventListener("blur",()=>{spaceDown=false;stage.classList.toggle("tool
 
 /* ================= 菜单 ================= */
 function closeMenus(){$("#dataMenu").classList.remove("open");closeRadial()}
-$("#bData").onclick=e=>{e.stopPropagation();closeRadial();$("#dataMenu").classList.toggle("open")};
+$("#bData").onclick=e=>{e.stopPropagation();closeRadial();updLockLabel();$("#dataMenu").classList.toggle("open")};
+$("#bLock").onclick=()=>lockNow();
 $("#status").onclick=e=>{e.stopPropagation();$("#dataMenu").classList.toggle("open")};
 document.addEventListener("pointerdown",e=>{
   if(!e.target.closest("#dataMenu,#bData,#status")) $("#dataMenu").classList.remove("open");
@@ -1886,11 +1922,212 @@ document.addEventListener("pointerdown",e=>{
 });
 $("#dataMenu").addEventListener("click",e=>{
   const m=e.target.closest("[data-m]");if(!m)return; closeMenus();
-  ({open:openDataFile,saveas:saveAsDataFile,export:exportSync,qr:qrChoose,link:linkStartPC,
+  ({lock:lockNow,chpw:changePassword,autolock:cycleAutoLock,open:openDataFile,saveas:saveAsDataFile,export:exportSync,qr:qrChoose,link:linkStartPC,
     import:()=>{fileMode="merge";$("#fileIn").click()},
     restore:()=>{if(confirm("「从备份恢复」会用备份文件整个替换这台设备上现在的数据。\n\n只想把另一台设备的改动合进来，请用「导入并合并」。\n\n确定继续吗？")){fileMode="replace";$("#fileIn").click()}},
     clear:clearDemo})[m.dataset.m]();
 });
+
+/* ================= 登录密码与加密 =================
+   数据文件 / 本机存储 / 同步包 / 二维码 全部用 AES-256-GCM 加密。
+   钥匙由登录密码经 PBKDF2-SHA256（60 万轮）算出来；密码本身从不保存，只在解锁期间留在内存里。 */
+const KDF_ITER=600000, LSLOCK="mymemory.autolock";
+let VAULT=null, locked=false, lockSrc=null, lastAct=Date.now(), hiddenAt=0, badTries=0;
+async function deriveKey(pw,salt,iter){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",hash:"SHA-256",salt,iterations:iter},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+const isSealed=o=>!!(o&&o.format==="mymemory"&&o.encrypted===true&&o.ct&&o.kdf);
+async function sealData(data,v=VAULT){
+  let u=new TextEncoder().encode(JSON.stringify(data)), z=0;
+  if(window.CompressionStream){u=new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer());z=1}
+  const iv=crypto.getRandomValues(new Uint8Array(12)), ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},v.key,u));
+  return {format:"mymemory",ver:2,savedAt:new Date().toISOString(),encrypted:true,kdf:{name:"PBKDF2-SHA256",iter:v.iter,salt:v.saltB64},z,iv:b64e(iv),ct:b64e(ct),hint:v.hint||""};
+}
+async function openSealed(obj,key){
+  const pt=new Uint8Array(await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(obj.iv)},key,b64d(obj.ct)));
+  return JSON.parse(obj.z?await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream("gzip"))).text():new TextDecoder().decode(pt));
+}
+async function tryPw(obj,pw){
+  try{const iter=Math.min(5e6,Math.max(1e5,+obj.kdf.iter||KDF_ITER)), key=await deriveKey(pw,b64d(obj.kdf.salt),iter);
+    return {key,iter,data:await openSealed(obj,key)}}catch{return null}
+}
+const vaultFrom=(obj,r,pw)=>({key:r.key,iter:r.iter,saltB64:obj.kdf.salt,pw,hint:typeof obj.hint==="string"?obj.hint.slice(0,60):""});
+/* 打开任何一个包：明文直接读；加密的先用当前登录密码试，不行再问 */
+async function readPack(obj,label="这个文件",adopt){
+  if(!isSealed(obj)) return unpack(obj);
+  if(VAULT){
+    if(VAULT.saltB64===obj.kdf.salt){try{return unpack(await openSealed(obj,VAULT.key))}catch{}}
+    const r=await tryPw(obj,VAULT.pw); if(r){if(adopt)VAULT=vaultFrom(obj,r,VAULT.pw);return unpack(r.data)}
+  }
+  for(;;){
+    const pw=await askPassword(`🔐 ${label}是用另一个密码加密的`,obj.hint); if(pw===null) throw new Error("cancel");
+    const r=await tryPw(obj,pw); if(r){if(adopt)VAULT=vaultFrom(obj,r,pw);return unpack(r.data)} toast("😣 密码不对");
+  }
+}
+async function packOut(data=S){return VAULT?await sealData(data):{format:"mymemory",ver:1,savedAt:new Date().toISOString(),encrypted:false,data}}
+function askPassword(title,hint){
+  return new Promise(res=>{
+    openModal(`<h3>${title}</h3><p class="d">输入当初加密它时用的密码。${hint?`<br>提示：<b>${esc(hint)}</b>`:""}</p>
+      <div class="trow"><input class="tin" id="apw" type="password" autocomplete="off" placeholder="密码"></div>
+      <div class="actions"><button class="btn" data-x="0">取消</button><button class="btn pri" data-x="1">打开</button></div>`);
+    modalResolve=res;
+    const go=ok=>{const v=$("#apw").value;$("#mcard").onclick=null;modalResolve=null;$("#modal").classList.remove("open");res(ok?v:null)};
+    $("#mcard").onclick=e=>{const b=e.target.closest("[data-x]");if(b)go(b.dataset.x==="1")};
+    $("#apw").addEventListener("keydown",e=>{if(e.key==="Enter")go(true)});
+    setTimeout(()=>$("#apw").focus(),60);
+  });
+}
+
+/* ---------- 锁屏 ---------- */
+const lockEl=$("#lock");
+function pwScore(p){let s=0;if(p.length>=6)s++;if(p.length>=10)s++;if(/[a-z]/.test(p)&&/[A-Z]/.test(p))s++;if(/\d/.test(p))s++;if(/[^\w]/.test(p))s++;return s}
+function showLock(mode,o={}){
+  locked=true; lockSrc=o.src||lockSrc; lockEl.dataset.mode=mode;
+  const T={
+    setup:{t:o.first?"欢迎使用「脑屎」":"先设一个登录密码",s:o.first?"第一步：设一个<b>登录密码</b>。以后打开软件都要输入它，里面的东西会全部加密。":"设好以后，你的数据会全部加密保存。",b:"设好了，开始用"},
+    unlock:{t:"脑屎",s:"输入登录密码解锁",b:"解锁"},
+    file:{t:"脑屎",s:`要先打开你的数据文件 <b>${esc(o.name||"")}</b>`,b:"打开数据文件"},
+    missing:{t:"脑屎",s:`找不到数据文件 <b>${esc(o.name||"")}</b><br>U 盘插好了吗？`,b:"再试一次"},
+  }[mode];
+  lockEl.innerHTML=`<div class="lk-card">
+    <div class="lk-logo"></div><h2>${T.t}</h2><p class="lk-sub">${T.s}</p>
+    ${mode==="unlock"||mode==="setup"?`<div class="lk-in"><input id="lkPw" type="password" placeholder="${mode==="setup"?"新密码（至少 6 位）":"登录密码"}" autocomplete="${mode==="setup"?"new-password":"current-password"}" spellcheck="false"><button class="ib" id="lkEye" tabindex="-1">${svg("eye")}</button></div>`:""}
+    ${mode==="setup"?`<div class="meter lk-meter"><i id="lkMeter"></i></div>
+      <div class="lk-in"><input id="lkPw2" type="password" placeholder="再输一次" autocomplete="new-password" spellcheck="false"></div>
+      <div class="lk-in"><input id="lkHint" type="text" maxlength="60" placeholder="密码提示（可不填，千万别直接写密码）" spellcheck="false" autocomplete="off"></div>
+      <p class="lk-warn">⚠️ <b>密码忘了就再也打不开</b>，没有任何找回办法。请记牢，或者写在只有你知道的地方。</p>`:""}
+    ${mode==="unlock"&&o.hint?`<p class="lk-hint">💡 提示：${esc(o.hint)}</p>`:""}
+    <button class="btn pri lk-go" id="lkGo">${T.b}</button>
+    <p class="lk-err" id="lkErr"></p>
+    ${mode==="unlock"?`<button class="lk-link" id="lkForget">忘记密码？</button>`:""}
+    ${mode==="missing"||mode==="file"?`<button class="lk-link" id="lkPick">选别的数据文件</button>`:""}
+    <p class="lk-foot">${svg("lock")} AES-256 加密 · 数据只在你的设备上</p></div>`;
+  lockEl.classList.add("open"); document.body.classList.add("is-locked");
+  const pw=$("#lkPw"); if(pw) setTimeout(()=>pw.focus(),120);
+  const eye=$("#lkEye"); if(eye) eye.onclick=()=>{const show=pw.type==="password";pw.type=show?"text":"password";const p2=$("#lkPw2");if(p2)p2.type=pw.type;eye.innerHTML=svg(show?"eyeoff":"eye")};
+  if(mode==="setup") pw.addEventListener("input",()=>{const s=pwScore(pw.value),m=$("#lkMeter");m.style.width=(pw.value?Math.max(12,s*20):0)+"%";m.style.background=s<=2?"var(--red)":s===3?"var(--amber)":"var(--green)"});
+  lockEl.querySelectorAll("input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")$("#lkGo").click()}));
+  $("#lkGo").onclick=()=>lockGo(mode,o);
+  const f=$("#lkForget"); if(f) f.onclick=forgotPassword;
+  const pk=$("#lkPick"); if(pk) pk.onclick=pickOtherFile;
+}
+function lockErr(msg){const e=$("#lkErr");e.textContent=msg;const c=lockEl.querySelector(".lk-card");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake")}
+function hideLock(){
+  const c=lockEl.querySelector(".lk-card"); if(c) c.classList.add("bye");
+  setTimeout(()=>{lockEl.classList.remove("open");lockEl.innerHTML="";document.body.classList.remove("is-locked")},380);
+  locked=false; lastAct=Date.now(); badTries=0;
+}
+async function readSource(){
+  if(lockSrc&&lockSrc.kind==="file"){const f=await lockSrc.h.getFile();return JSON.parse(await f.text())}
+  return JSON.parse(localStorage.getItem(LS));
+}
+async function lockGo(mode,o){
+  const go=$("#lkGo"); if(go.disabled) return;
+  const busy=t=>{go.disabled=!!t;go.textContent=t||go.dataset.t||go.textContent;if(!go.dataset.t)go.dataset.t=go.textContent};
+  if(mode==="file"||mode==="missing"){
+    try{await o.h.requestPermission({mode:"readwrite"});const f=await o.h.getFile();const txt=await f.text();
+      await afterFileRead(o.h,txt)}catch(e){console.warn(e);showLock("missing",{h:o.h,name:o.h.name})}
+    return;
+  }
+  const pw=$("#lkPw").value;
+  if(mode==="setup"){
+    if(pw.length<6) return lockErr("至少 6 位");
+    if(pw!==$("#lkPw2").value) return lockErr("两次输入的不一样");
+    busy("加密中…");
+    const salt=crypto.getRandomValues(new Uint8Array(16));
+    VAULT={key:await deriveKey(pw,salt,KDF_ITER),iter:KDF_ITER,saltB64:b64e(salt),pw,hint:$("#lkHint").value.trim()};
+    hideLock(); try{localStorage.removeItem(LS+".backup")}catch{} await flush();
+    celebrate(); toast("🔒 登录密码设好了，数据已经加密");
+    if(o.first) setTimeout(showWelcome,450); else afterUnlock();
+    return;
+  }
+  // unlock
+  if(!pw) return lockErr("请输入密码");
+  busy("解锁中…");
+  let obj; try{obj=await readSource()}catch(e){busy("");return lockErr("读不到数据："+(e.message||e))}
+  const r=isSealed(obj)?await tryPw(obj,pw):null;
+  if(!r){busy("");badTries++;const wait=badTries>=3?Math.min(30,2**(badTries-2)):0;
+    lockErr(wait?`密码不对，请 ${wait} 秒后再试`:"密码不对");
+    if(wait){go.disabled=true;setTimeout(()=>{go.disabled=false},wait*1000)} return}
+  VAULT=vaultFrom(obj,r,pw); S=unpack(r.data); H.u=[];H.r=[];updUndo();
+  if(lockSrc&&lockSrc.kind==="file"){fileHandle=lockSrc.h;fileOK=true}
+  hideLock(); renderAll(); restoreCam(); setStatus(); afterUnlock();
+  const c=viewCenter(); burst(c.x,c.y,"#34d399");
+}
+function restoreCam(){let c=null;try{c=JSON.parse(localStorage.getItem(LSCAM))}catch{} if(c&&c.z){cam=c;applyCam()} else fitView(true)}
+/* 电脑：读到数据文件以后 */
+async function afterFileRead(h,txt){
+  fileHandle=h; fileOK=false; idbSet("handle",h);
+  if(!txt.trim()){fileOK=true;S=blankData();renderAll();fitView(true);showLock("setup",{first:true});return}
+  const obj=JSON.parse(txt);
+  if(isSealed(obj)){lockSrc={kind:"file",h};showLock("unlock",{src:lockSrc,hint:obj.hint});return}
+  S=unpack(obj); fileOK=true; renderAll(); restoreCam(); setStatus();   // 旧版明文文件：先设密码，再加密存回去
+  showLock("setup",{});
+}
+async function pickOtherFile(){
+  try{const [h]=await showOpenFilePicker({types:[{description:"脑屎 数据文件",accept:{"application/json":[".json"]}}]});
+    await h.requestPermission({mode:"readwrite"}); await afterFileRead(h,await (await h.getFile()).text())}
+  catch(e){if(e.name!=="AbortError")toast("打不开这个文件")}
+}
+async function lockNow(){
+  if(locked||!VAULT) return;
+  if(dirty) await flush(); await writing;
+  if(link) linkEnd(true); qrStop(); $("#modal").classList.remove("open"); modalResolve=null; pickFor=null;
+  $("#search").classList.remove("open"); closeCtx(); closeMenus(); hideBanner();
+  if(connectMode) cancelConnectMode();
+  selSet=new Set(); selEdge=null; selGroup=null; hidePanel(); updateSelbar();
+  lockSrc=fileHandle&&fileOK?{kind:"file",h:fileHandle}:{kind:"ls"};
+  const hint=VAULT.hint; VAULT=null; S={nodes:[],edges:[],logos:[],groups:[],demo:false}; H.u=[];H.r=[]; updUndo();
+  nodeEls.forEach(el=>el.remove()); nodeEls.clear(); renderAll();
+  showLock("unlock",{src:lockSrc,hint});
+}
+function forgotPassword(){
+  openModal(`<h3>😢 忘记密码</h3>
+    <p class="d">数据是用你的密码加密的，<b>没有密码谁都打不开</b>，包括我。可以试试：</p>
+    <p class="d">· 看看锁屏上的密码提示<br>· 试试你常用的几个密码<br>· 别的设备上如果还开着「脑屎」，可以从那边导出一份，用新密码重新开始</p>
+    <p class="d" style="color:var(--red)">实在想不起来，只能清空这台设备上的数据，从头开始（U 盘里的数据文件不会被删，只是这里不再打开它）。</p>
+    <div class="trow"><input class="tin" id="fgc" placeholder="想清空就输入：清空" autocomplete="off"></div>
+    <div class="actions"><button class="btn" data-x="0">再想想</button><button class="btn" data-x="1" style="color:var(--red)">清空并重新开始</button></div>`);
+  $("#mcard").onclick=async e=>{const b=e.target.closest("[data-x]");if(!b)return;
+    if(b.dataset.x==="0"){closeModal();return}
+    if($("#fgc").value.trim()!=="清空"){toast("要输入「清空」两个字");return}
+    try{localStorage.removeItem(LS);localStorage.removeItem(LS+".backup")}catch{} await idbSet("handle",null); location.reload()};
+}
+function changePassword(){
+  if(!VAULT) return;
+  openModal(`<h3>🔑 修改登录密码</h3><p class="d">改完以后，<b>别的设备上</b>还是旧密码，各自改各自的。旧密码加密的同步包导入时会问你密码。</p>
+    <div class="trow"><input class="tin" id="cp0" type="password" placeholder="现在的密码" autocomplete="current-password"></div><div style="height:8px"></div>
+    <div class="trow"><input class="tin" id="cp1" type="password" placeholder="新密码（至少 6 位）" autocomplete="new-password"></div><div style="height:8px"></div>
+    <div class="trow"><input class="tin" id="cp2" type="password" placeholder="新密码再输一次" autocomplete="new-password"></div><div style="height:8px"></div>
+    <div class="trow"><input class="tin" id="cp3" maxlength="60" placeholder="新的密码提示（可不填）" value="${esc(VAULT.hint||"")}" autocomplete="off"></div>
+    <div class="actions"><button class="btn" data-x="0">取消</button><button class="btn pri" data-x="1">改好了</button></div>`);
+  $("#mcard").onclick=async e=>{const b=e.target.closest("[data-x]");if(!b)return;if(b.dataset.x==="0"){closeModal();return}
+    const [o,n1,n2,hint]=["#cp0","#cp1","#cp2","#cp3"].map(s=>$(s).value);
+    if(o!==VAULT.pw){toast("现在的密码不对");return} if(n1.length<6){toast("新密码至少 6 位");return} if(n1!==n2){toast("两次新密码不一样");return}
+    b.disabled=true;b.textContent="加密中…";
+    const salt=crypto.getRandomValues(new Uint8Array(16));
+    VAULT={key:await deriveKey(n1,salt,KDF_ITER),iter:KDF_ITER,saltB64:b64e(salt),pw:n1,hint:hint.trim()};
+    await flush(); closeModal(); celebrate(); toast("🔑 密码改好了，数据已用新密码重新加密")};
+}
+const AUTOLOCK_OPTS=[1,5,15,30,0];
+const autoLockMin=()=>{const v=+localStorage.getItem(LSLOCK);return AUTOLOCK_OPTS.includes(v)&&localStorage.getItem(LSLOCK)!==null?v:5};
+function cycleAutoLock(){const i=AUTOLOCK_OPTS.indexOf(autoLockMin()),n=AUTOLOCK_OPTS[(i+1)%AUTOLOCK_OPTS.length];
+  localStorage.setItem(LSLOCK,n);updLockLabel();toast(n?`⏱ ${n} 分钟不操作就自动锁上`:"⏱ 不自动锁（不推荐）")}
+function updLockLabel(){const el=$("#alLabel");if(el){const m=autoLockMin();el.textContent=m?`${m} 分钟不操作自动锁上${TOUCH?"，切到后台也会锁":""}`:"现在不会自动锁（不推荐）"}}
+["pointerdown","keydown","wheel"].forEach(t=>addEventListener(t,()=>{lastAct=Date.now()},{passive:true,capture:true}));
+setInterval(()=>{const m=autoLockMin();if(!locked&&VAULT&&m&&Date.now()-lastAct>m*60e3&&!(link&&link.busy))lockNow()},10000);
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){hiddenAt=Date.now();return}
+  if(MODE!=="desktop"&&!locked&&VAULT&&autoLockMin()&&!link&&hiddenAt&&Date.now()-hiddenAt>30000) lockNow();
+});
+function afterUnlock(){
+  if(MODE!=="desktop"&&!S.demo){ // 手机：提醒定期备份
+    const last=+localStorage.getItem(LSEXP)||0, days=Math.floor((Date.now()-last)/864e5);
+    if(!last||days>=14) setTimeout(()=>banner(last?`📦 已经 ${days} 天没备份了`:"📦 还没备份过，数据只在这台手机上","导出",exportSync),1200);
+  }
+  setTimeout(hideBannerIfInfo,9000);
+}
 
 /* ================= 保存：本机存储 + 数据文件 ================= */
 const LSEXP="mymemory.lastExport";
@@ -1898,17 +2135,17 @@ let fileHandle=null, fileOK=false, saveT=null, writing=Promise.resolve(), dirty=
 function idb(){return new Promise((res,rej)=>{const r=indexedDB.open("mymemory",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=rej})}
 async function idbGet(k){try{const d=await idb();return await new Promise(r=>{const q=d.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}catch{return null}}
 async function idbSet(k,v){try{const d=await idb();d.transaction("kv","readwrite").objectStore("kv").put(v,k)}catch{}}
-function save(){dirty=true;setStatus("saving");clearTimeout(saveT);saveT=setTimeout(flush,450)}
-function flush(){
-  clearTimeout(saveT);
+function save(){if(locked)return;dirty=true;setStatus("saving");clearTimeout(saveT);saveT=setTimeout(flush,450)}
+async function flush(){
+  clearTimeout(saveT); if(locked) return;
   if(fileHandle&&fileOK){ // 电脑：数据只写进你的数据文件，浏览器里不留副本（拔走 U 盘，公司电脑上就不剩东西）
     try{localStorage.removeItem(LS);localStorage.removeItem(LS+".backup")}catch{}
     writeFile(); return }
-  try{localStorage.setItem(LS,JSON.stringify(S))}catch{toast(MODE==="desktop"?"浏览器缓存满了，请尽快存成数据文件":"本机空间不够了，先导出一份备份！")}
+  try{localStorage.setItem(LS,JSON.stringify(await packOut()))}catch{toast(MODE==="desktop"?"浏览器缓存满了，请尽快存成数据文件":"本机空间不够了，先导出一份备份！")}
   dirty=false;setStatus()
 }
 function writeFile(){
-  writing=writing.then(async()=>{const w=await fileHandle.createWritable();await w.write(JSON.stringify(pack(),null,1));await w.close();dirty=false;setStatus()})
+  writing=writing.then(async()=>{const out=await packOut();const w=await fileHandle.createWritable();await w.write(JSON.stringify(out));await w.close();dirty=false;setStatus()})
     .catch(err=>{console.warn(err);fileOK=false;setStatus();banner("⚠️ 写不进数据文件（U 盘拔了？换了电脑？）","重新打开",openDataFile)});
 }
 function setStatus(st){
@@ -1920,7 +2157,7 @@ async function useHandle(h,{replace=true}={}){
   const f=await h.getFile(), txt=await f.text();
   fileHandle=h; fileOK=true; idbSet("handle",h);
   if(txt.trim()){
-    const data=unpack(JSON.parse(txt));
+    const data=await readPack(JSON.parse(txt),"这个数据文件",true);
     if(replace){S=data; selId=null; selSet=new Set(); panel.classList.remove("open");
       nodeEls.forEach(el=>el.remove()); nodeEls.clear(); renderAll(); fitView(); }
   } else writeFile();
@@ -1947,7 +2184,7 @@ function download(name,txt){
 }
 /* 导出：安卓 App 用系统分享；iPhone 用分享面单（可存到“文件”、发 LocalSend）；电脑直接下载 */
 async function shareOrDownload(name){
-  const txt=JSON.stringify(pack(),null,1);
+  const txt=JSON.stringify(await packOut());
   if(IS_APP){
     const P=Capacitor.Plugins;
     const r=await P.Filesystem.writeFile({path:name,data:txt,directory:"CACHE",encoding:"utf8"});
@@ -1978,9 +2215,9 @@ let fileMode="merge";
 $("#fileIn").onchange=async e=>{
   const f=e.target.files[0]; e.target.value=""; if(!f) return;
   const txt=await f.text();
-  if(fileMode==="replace"){ try{const d=unpack(JSON.parse(txt));pushUndo();
+  if(fileMode==="replace"){ try{const d=await readPack(JSON.parse(txt),"这个备份");pushUndo();
       S=d; nodeEls.forEach(el=>el.remove()); nodeEls.clear(); closePanel(); renderAll(); fitView(); flush(); toast("♻️ 已载入 "+esc(f.name)); celebrate()}
-    catch{toast("这不是「脑屎」的数据文件")} }
+    catch(err){if(err.message!=="cancel")toast("这不是「脑屎」的数据文件")} }
   else importMerge(txt);
 };
 function clearDemo(){
@@ -2037,7 +2274,7 @@ function mergeData(L,R){
   return {out,conflicts,st};
 }
 async function importMerge(txt){
-  let R; try{R=unpack(JSON.parse(txt))}catch{toast("这不是「脑屎」的数据文件");return false}
+  let R; try{R=await readPack(JSON.parse(txt),"这个同步包")}catch(err){if(err.message!=="cancel")toast("这不是「脑屎」的数据文件");return false}
   const {out,conflicts,st}=mergeData(S,R);
   if(conflicts.length){
     const pick=await resolveConflicts(conflicts); if(!pick){toast("已取消合并，什么都没改");return false}
@@ -2090,7 +2327,7 @@ function showWelcome(){
     <p class="d">账号、密码、电脑信息、备忘，像一张脑图一样摆在眼前。<br>所有东西只存在<b>这台设备</b>上，不联网、不上传、谁也看不到。</p>
     <div class="wopts"><button class="wopt" data-w="demo">🎡<b>先看看示例</b><small>带一套演示数据，随便玩</small></button>
     <button class="wopt" data-w="blank">✨<b>从空白开始</b><small>直接记我自己的东西</small></button></div>
-    <div class="lock-note">${svg("lock")}登录密码会在正式版加上</div></div>`);
+    <div class="lock-note">${svg("lock")}已加密 · 只有你的登录密码能打开</div></div>`);
   $("#mcard").onclick=e=>{
     const w=e.target.closest("[data-w]"); if(!w) return;
     $("#mcard").onclick=null; $("#modal").classList.remove("open");
@@ -2104,26 +2341,17 @@ function showWelcome(){
 async function boot(){
   let raw=null; try{raw=localStorage.getItem(LS)}catch{}
   const h=FS?await idbGet("handle"):null;
-  try{S=raw?unpack(JSON.parse(raw)):(h?{nodes:[],edges:[],logos:[],groups:[],demo:false}:demoData())}catch{S=demoData()}
-  let c=null; try{c=JSON.parse(localStorage.getItem(LSCAM))}catch{}
-  (S.groups||[]).forEach(g=>{if(!g.members){g.members=alive().filter(n=>insideG(g,n)).map(n=>n.id)}});
-  renderAll(); if(c&&c.z) {cam=c;applyCam()} else fitView(true);
   if(localStorage.getItem(LSTIP)) $("#tips").remove(); else $("#tipsX").onclick=()=>{localStorage.setItem(LSTIP,1);$("#tips").remove()};
-  setStatus();
-  if(h){
+  S={nodes:[],edges:[],logos:[],groups:[],demo:false}; renderAll(); setStatus();
+  if(h){   // 电脑：数据在 U 盘的数据文件里
     let p="prompt"; try{p=await h.queryPermission({mode:"readwrite"})}catch{}
-    if(p==="granted"){ try{await useHandle(h)}catch{fileHandle=h;fileOK=false;banner("⚠️ 找不到上次的数据文件（U 盘没插？）","重新打开",openDataFile)} }
-    else banner(`🔓 继续使用数据文件 <b>${esc(h.name)}</b>？`,"继续",async()=>{
-      try{await h.requestPermission({mode:"readwrite"});await useHandle(h);toast("欢迎回来 👋");celebrate()}
-      catch{banner("⚠️ 找不到这个数据文件（U 盘没插？盘符变了？）","重新打开",openDataFile)}});
-    return;
+    if(p==="granted"){try{await afterFileRead(h,await (await h.getFile()).text());return}catch{showLock("missing",{h,name:h.name});return}}
+    showLock("file",{h,name:h.name}); return;
   }
-  if(!raw){setTimeout(showWelcome,500);return}
-  if(MODE!=="desktop"&&!S.demo){ // 手机：提醒定期备份
-    const last=+localStorage.getItem(LSEXP)||0, days=Math.floor((Date.now()-last)/864e5);
-    if(!last||days>=14) setTimeout(()=>banner(last?`📦 已经 ${days} 天没备份了`:"📦 还没备份过，数据只在这台手机上","导出",exportSync),1200);
-  } else if(S.demo&&MODE==="desktop") setTimeout(()=>banner("👋 这是示例数据。准备好了就「数据 → 新建数据文件」存到 U 盘"),1200);
-  setTimeout(hideBannerIfInfo,9000);
+  let obj=null; try{obj=raw?JSON.parse(raw):null}catch{}
+  if(obj&&isSealed(obj)){lockSrc={kind:"ls"};showLock("unlock",{src:lockSrc,hint:obj.hint});return}
+  if(obj){try{S=unpack(obj)}catch{S=demoData()} renderAll(); restoreCam(); showLock("setup",{}); return}   // 旧版明文：先设密码
+  S=demoData(); renderAll(); fitView(true); lockSrc={kind:"ls"}; showLock("setup",{first:true});        // 第一次用
 }
 function hideBannerIfInfo(){if(!$("#banner").querySelector("button"))hideBanner()}
 window.addEventListener("beforeunload",()=>{if(dirty)flush()});
