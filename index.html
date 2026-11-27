@@ -37,13 +37,14 @@ svg.i{width:18px;height:18px;flex:none}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #edges{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
 .eg{fill:none;stroke-width:9;opacity:.06}
-.ef{fill:none;stroke-width:2;opacity:.42;stroke-dasharray:5 9;stroke-linecap:round;animation:flow 1.4s linear infinite}
-.ef.hot{opacity:1;stroke-width:2.6}
+.ef{fill:none;stroke-width:2;opacity:.42;stroke-dasharray:5 9;stroke-linecap:round}
+.ef.hot{opacity:1;stroke-width:2.6;animation:flow 1.4s linear infinite}
 .tmp{fill:none;stroke:#fff;stroke-width:2;stroke-dasharray:4 6;opacity:.7}
 @keyframes flow{to{stroke-dashoffset:-14}}
 
 /* ---------- 节点 ---------- */
 .node{position:absolute;--s:62px;width:150px;margin-left:-75px;margin-top:calc(var(--s) / -2);display:flex;justify-content:center;pointer-events:none;transition:opacity .3s,filter .3s}
+.node{contain:layout style}
 .node .nb{pointer-events:auto;display:flex;flex-direction:column;align-items:center;cursor:pointer;animation:pop .55s cubic-bezier(.34,1.56,.64,1) both}
 .iw{position:relative;width:var(--s);height:var(--s)}
 .ico{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;overflow:hidden;
@@ -60,7 +61,9 @@ svg.i{width:18px;height:18px;flex:none}
 .t-note{--s:58px}
 .t-note .ico{border-radius:14px;transform:rotate(-5deg);background:linear-gradient(150deg,#fde68a,#f59e0b);border-color:#fff6}
 .t-hub{--s:92px}
-.t-hub .ico{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 55%,#1a1d3a),#14162b 70%);animation:breathe 4.5s ease-in-out infinite}
+.t-hub .ico{background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 55%,#1a1d3a),#14162b 70%)}
+.t-hub .iw::after{content:"";position:absolute;inset:-22px;border-radius:50%;z-index:-1;pointer-events:none;background:radial-gradient(circle,color-mix(in srgb,var(--c) 45%,transparent),transparent 68%);animation:glow 4.5s ease-in-out infinite}
+@keyframes glow{50%{opacity:.35;transform:scale(.88)}}
 .t-hub .iw::before{content:"";position:absolute;inset:-9px;border-radius:50%;
   background:conic-gradient(var(--c),transparent 30%,var(--c) 55%,transparent 80%,var(--c));
   -webkit-mask:radial-gradient(circle,transparent 63%,#000 64%,#000 70%,transparent 71%);mask:radial-gradient(circle,transparent 63%,#000 64%,#000 70%,transparent 71%);
@@ -72,7 +75,7 @@ svg.i{width:18px;height:18px;flex:none}
 .sel .ring{opacity:1;animation:ringp 1.8s ease-out infinite}
 .ping .ring{opacity:1;animation:ping .9s ease-out 3}
 .label{margin-top:9px;font-size:13px;font-weight:650;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  padding:2px 9px;border-radius:9px;background:rgba(12,14,26,.55);backdrop-filter:blur(6px)}
+  padding:2px 9px;border-radius:9px;background:rgba(12,14,26,.72)}
 .t-hub .label{font-size:15px;margin-top:13px}
 .sub{font-size:11px;color:var(--muted);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .port{position:absolute;right:-7px;top:50%;width:16px;height:16px;margin-top:-8px;border-radius:50%;background:var(--c);border:3px solid var(--bg);
@@ -289,6 +292,7 @@ html,body{overscroll-behavior:none}
 /* 连线：可点可剪 */
 .eh{fill:none;stroke:transparent;stroke-width:18;pointer-events:stroke;cursor:pointer}
 .eh:hover+.ef{opacity:1;stroke-width:3.2}
+.ef.dimmed{opacity:.05}
 .ef.picked{opacity:1;stroke-width:3.6;stroke-dasharray:none;filter:drop-shadow(0 0 6px currentColor)}
 .snip{fill:none;stroke-width:3;animation:snip .6s ease-out forwards}
 @keyframes snip{0%{opacity:1;stroke-dasharray:1000 0}40%{opacity:1;stroke-dasharray:30 14}100%{opacity:0;stroke-width:9;stroke-dasharray:2 40}}
@@ -318,6 +322,15 @@ html,body{overscroll-behavior:none}
 .node.droptarget .ico{transform:scale(1.18);box-shadow:0 0 0 10px color-mix(in srgb,var(--c) 40%,transparent)}
 .pfb{display:flex;gap:6px;align-items:center}
 #toasts{bottom:78px}
+/* 缩小到一定程度：少画点细节，保持流畅 */
+#world.lod1 .sub,#world.lod1 .port{display:none}
+#world.lod1 .eg{display:none}
+#world.lod2 .label{display:none}
+#world.lod2 .t-hub .label{display:block}
+#world.lod2 .t-hub .iw::before,#world.lod2 .t-hub .iw::after{animation:none}
+#world.lod2 .ico{box-shadow:none}
+/* 拖动 / 缩放画布时：暂停装饰动画 */
+#world.moving .t-hub .iw::before,#world.moving .t-hub .iw::after,#world.moving .ef.hot{animation-play-state:paused}
 /* 锁着的时候弹窗要在锁屏上面 */
 body.is-locked #modal{z-index:95}
 #lock.fg-on .lk-card{visibility:hidden}
@@ -690,12 +703,14 @@ function applyCam(){
   world.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.z})`;
   const g=30*cam.z; grid.style.backgroundSize=`${g}px ${g}px`; grid.style.backgroundPosition=`${cam.x}px ${cam.y}px`;
   const z=$("#zl"); if(z) z.textContent=Math.round(cam.z*100)+"%";
+  world.classList.toggle("lod1",cam.z<.45); world.classList.toggle("lod2",cam.z<.24);
+  world.classList.add("moving"); clearTimeout(applyCam.t); applyCam.t=setTimeout(()=>world.classList.remove("moving"),180);
   saveCamSoon();
 }
 let camT; function saveCamSoon(){clearTimeout(camT);camT=setTimeout(()=>{try{localStorage.setItem(LSCAM,JSON.stringify(cam))}catch{}},400)}
 const toWorld=(sx,sy)=>({x:(sx-cam.x)/cam.z,y:(sy-cam.y)/cam.z});
 function zoomAt(sx,sy,f){
-  const nz=clamp(cam.z*f,.2,2.6), w=toWorld(sx,sy);
+  const nz=clamp(cam.z*f,.06,3), w=toWorld(sx,sy);
   cam.z=nz; cam.x=sx-w.x*nz; cam.y=sy-w.y*nz; applyCam();
 }
 let camAnim;
@@ -718,7 +733,7 @@ function fitView(instant){
   let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
   ns.forEach(n=>{x0=Math.min(x0,n.x);y0=Math.min(y0,n.y);x1=Math.max(x1,n.x);y1=Math.max(y1,n.y)});
   (S.groups||[]).forEach(g=>{if(g.deleted)return;x0=Math.min(x0,g.x+80);y0=Math.min(y0,g.y+40);x1=Math.max(x1,g.x+g.w-80);y1=Math.max(y1,g.y+g.h-80)});
-  const w=x1-x0+260,h=y1-y0+300, z=clamp(Math.min(innerWidth/w,(innerHeight-90)/h),.25,1.25);
+  const w=x1-x0+260,h=y1-y0+300, z=clamp(Math.min(innerWidth/w,(innerHeight-90)/h),.06,1.25);
   const cx=(x0+x1)/2, cy=(y0+y1)/2+20;
   const tx=innerWidth/2-cx*z, ty=(innerHeight+50)/2-cy*z;
   if(instant){cam={x:tx,y:ty,z};applyCam()} else animateCam(tx,ty,z,800);
@@ -827,18 +842,36 @@ function edgePath(a,b){const c=edgeCtrl(a,b);return `M${a.x.toFixed(1)},${a.y.to
 function edgeMid(a,b){const c=edgeCtrl(a,b);return {x:.25*a.x+.5*c.x+.25*b.x,y:.25*a.y+.5*c.y+.25*b.y}}
 function edgePts(a,b,n=16){const c=edgeCtrl(a,b),p=[];for(let i=0;i<=n;i++){const t=i/n,u=1-t;p.push({x:u*u*a.x+2*u*t*c.x+t*t*b.x,y:u*u*a.y+2*u*t*c.y+t*t*b.y})}return p}
 let tempLine=null;
+const edgeEls=new Map(), SVGNS="http://www.w3.org/2000/svg";
+let tmpPath=null, edgeBox="";
+function mkPath(cls){const p=document.createElementNS(SVGNS,"path");p.setAttribute("class",cls);return p}
+/* 连线：每根线的元素只建一次，之后只在形状/状态变化时改属性（以前每次都整个重画，线多了会闪、会卡） */
 function renderEdges(){
-  let h=""; const multi=selSet.size>1;
+  const multi=selSet.size>1, live=new Set();
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  for(const n of S.nodes){if(n.deleted)continue;if(n.x<x0)x0=n.x;if(n.y<y0)y0=n.y;if(n.x>x1)x1=n.x;if(n.y>y1)y1=n.y}
   for(const e of S.edges){
     if(e.deleted) continue; const a=byId(e.a),b=byId(e.b);
     if(!a||!b||a.deleted||b.deleted) continue;
-    const d=edgePath(a,b), c=a.type==="hub"?(a.color||TYPES.hub.color):(b.color||a.color);
+    live.add(e.id);
+    let el=edgeEls.get(e.id);
+    if(!el){el={eg:mkPath("eg"),eh:mkPath("eh"),ef:mkPath("ef")};el.eh.dataset.e=e.id;eg.append(el.eg,el.eh,el.ef);edgeEls.set(e.id,el)}
+    const d=edgePath(a,b);
+    if(el.d!==d){el.d=d;el.eg.setAttribute("d",d);el.eh.setAttribute("d",d);el.ef.setAttribute("d",d)}
+    const c=a.type==="hub"?(a.color||TYPES.hub.color):(b.color||a.color);
+    if(el.c!==c){el.c=c;el.eg.style.stroke=c;el.ef.style.stroke=c;el.ef.style.color=c}
     const hot=multi?(selSet.has(e.a)&&selSet.has(e.b)):[selId,hoverId].some(x=>x&&(e.a===x||e.b===x));
-    const dim=dimSet&&!(dimSet.has(e.a)&&dimSet.has(e.b));
-    h+=`<path class="eg" d="${d}" style="stroke:${c}"/><path class="eh" data-e="${e.id}" d="${d}"/><path class="ef${hot?" hot":""}${e.id===selEdge?" picked":""}" d="${d}" style="stroke:${c};color:${c}${dim?";opacity:.05":""}"/>`;
+    const cls="ef"+(hot?" hot":"")+(e.id===selEdge?" picked":"")+(dimSet&&!(dimSet.has(e.a)&&dimSet.has(e.b))?" dimmed":"");
+    if(el.cls!==cls){el.cls=cls;el.ef.setAttribute("class",cls)}
   }
-  if(tempLine) h+=`<path class="tmp" d="${edgePath(tempLine.a,tempLine.b)}"/>`;
-  eg.innerHTML=h; placeCut();
+  for(const [id,el] of edgeEls) if(!live.has(id)){el.eg.remove();el.eh.remove();el.ef.remove();edgeEls.delete(id)}
+  if(tempLine){if(!tmpPath){tmpPath=mkPath("tmp");eg.appendChild(tmpPath)}tmpPath.setAttribute("d",edgePath(tempLine.a,tempLine.b));
+    x0=Math.min(x0,tempLine.b.x);y0=Math.min(y0,tempLine.b.y);x1=Math.max(x1,tempLine.b.x);y1=Math.max(y1,tempLine.b.y)}
+  else if(tmpPath){tmpPath.remove();tmpPath=null}
+  // 让画线的图层正好盖住所有节点（以前只有 1 像素大，浏览器有时会漏画外面的线 → 闪）
+  if(x0<=x1){const P=600,bx=Math.floor((x0-P)/200)*200,by=Math.floor((y0-P)/200)*200,bw=Math.ceil((x1+P)/200)*200-bx,bh=Math.ceil((y1+P)/200)*200-by,k=`${bx} ${by} ${bw} ${bh}`;
+    if(k!==edgeBox){edgeBox=k;const sv=$("#edges");sv.setAttribute("viewBox",k);Object.assign(sv.style,{left:bx+"px",top:by+"px",width:bw+"px",height:bh+"px"})}}
+  placeCut();
 }
 function renderAll(){reindex();renderFrames();renderNodes();renderEdges()}
 function placeCut(){
@@ -1848,7 +1881,7 @@ function hideBanner(){$("#banner").classList.remove("open")}
 /* ================= 搜索 ================= */
 let sItems=[],sIdx=0;
 function openSearch(){closeMenus();$("#search").classList.add("open");const q=$("#sq");q.value="";runSearch();setTimeout(()=>q.focus(),50)}
-function closeSearch(){$("#search").classList.remove("open");dimSet=null;renderNodes();renderEdges()}
+function closeSearch(){$("#sq").blur();$("#search").classList.remove("open");dimSet=null;renderNodes();renderEdges()}
 function textOf(n){return [n.title,TYPES[n.type].name,...(n.fields||[]).filter(f=>!f.secret).flatMap(f=>[f.label,f.value]),n.note].join(" ")}
 function hl(s,q){if(!q)return esc(s);const i=s.toLowerCase().indexOf(q);if(i<0)return esc(s);return esc(s.slice(0,i))+"<mark>"+esc(s.slice(i,i+q.length))+"</mark>"+esc(s.slice(i+q.length))}
 function runSearch(){
